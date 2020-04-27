@@ -1,0 +1,19 @@
+{% extends 'home/base.html' %}
+
+
+{% block content %}
+
+<!-- The blog area starts here -->
+<section>
+    <div class="container">
+        <form action="{% url 'login' %}" method="POST">
+            {% csrf_token %}
+            {{ form.as_p}}
+            <input type="submit" value="Register">
+        </form>
+    </div>
+</section>
+<!-- The blog area starts here-->
+
+
+{% endblock content %}
