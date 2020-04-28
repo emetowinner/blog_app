@@ -4,6 +4,7 @@ from .models import Post
 from django.contrib.auth.models import User
 from django.contrib.auth import login,logout
 from .forms import PostForm
+from django.contrib.auth.decorators import login_required
 
 def index(request):
 
@@ -25,7 +26,7 @@ def blog(request):
         'title':'Blog'
     }
     return render(request,'home/blog.html',context)
-
+@login_required(login_url='login')
 def create_post(request):
     form = PostForm()
     if request.method == 'POST':
