@@ -6,13 +6,6 @@ from django.contrib.auth import login,logout
 from .forms import PostForm
 from django.contrib.auth.decorators import login_required
 
-def index(request):
-
-    context = {
-        'title':'Home'
-    }
-    return render(request,'home/index.html',context)
-
 def about(request):
     context = {
         'title':'About'
