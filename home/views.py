@@ -73,9 +73,12 @@ def post_update(request,pk):
             form.save()
             messages.success(request,'Post updated successfully')
             return render(request,'home/post_update.html',{'form':form})
+        else:
+            form = PostForm(instance=post)
+            messages.error(request,'Something went wrong try again')
+            return render(request,'home/post_update.html',{'form':form})
     else:
         form = PostForm(instance=post)
-        messages.error(request,'Something went wrong try again')
         return render(request,'home/post_update.html',{'form':form})
 
 def user_post(request, username):

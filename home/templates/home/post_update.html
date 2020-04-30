@@ -1,12 +1,21 @@
 {% extends "home/base.html" %}
+{% load crispy_forms_tags %}
 
 {% block content %}
 
+<div class="content-section">
+    {% if message %}
+        <div class="alert alert-danger">
+            {{ message }}
+        </div>
+    {% endif %}
 
-<form action="" method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="post">
-</form>
+    <form action="" method="POST">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <input type="submit" value="post">
+    </form>
+
+</div>
 
 {% endblock content %}
