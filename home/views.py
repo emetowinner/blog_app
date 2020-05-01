@@ -6,7 +6,9 @@ from django.contrib.auth import login, logout
 from .forms import PostForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.views.generic import DetailView
+from django.views.generic import DetailView,DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin,UserPassesTestMixin
+from django.core.paginator import Paginator
 
 
 def about(request):
@@ -17,10 +19,13 @@ def about(request):
 
 
 def blog(request):
-    posts = Post.objects.all().order_by('-date_posted')
+    post_data = Post.objects.all().order_by('-date_posted')
+    posts = Paginator(post_data,5)
+    print(posts.get_page(1).object_list)
     context = {
-        'posts': posts,
-        'title': 'Blog'
+        'post_data': posts.get_page(1).object_list,
+        'title': 'Blog',
+        'paginator':posts.get_page(1)        
     }
     return render(request, 'home/blog.html', context)
 
@@ -37,14 +42,13 @@ def create_post(request):
             author = user
             post = Post(title=title, content=content, author=author)
             post.save()
-            message = f'your post {title} has been submitted'
+            messages.success(request,f'your post {title} has been submitted')
 
             context = {
                 'title': 'Create Post',
                 'form': form,
-                'message': message,
             }
-            return render(request, 'home/create-post.html', context)
+            return redirect('post-details',pk=post.pk)
         else:
             message = 'The for you submitted is not valid!'
             form = PostForm()
@@ -80,6 +84,15 @@ def post_update(request,pk):
     else:
         form = PostForm(instance=post)
         return render(request,'home/post_update.html',{'form':form})
+class PostDeleteView(LoginRequiredMixin,UserPassesTestMixin,DeleteView):
+    model = Post
+    success_url = '/'
+
+    def test_func(self):
+        post = self.get_object()
+        if self.request.user == post.author:
+            return True
+        return False
 
 def user_post(request, username):
     context = {

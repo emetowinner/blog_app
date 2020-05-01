@@ -2,13 +2,15 @@
 {% load crispy_forms_tags %}
 {% block content %}
 
-<p>{{ message }}</p>
     <div class="content-section">
         {% if message %}
             <div class="alert alert-danger">
                 {{ message }}
             </div>
         {% endif %}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">Create Post</legend>
+        </fieldset>
         <form action="{% url 'post' %}" method="POST">
             {% csrf_token %}
             {{ form|crispy }}
