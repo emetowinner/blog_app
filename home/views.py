@@ -1,12 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect,get_object_or_404
 from django.http import HttpResponse
 from .models import Post
 from django.contrib.auth.models import User
-from django.contrib.auth import login, logout
 from .forms import PostForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.views.generic import DetailView,DeleteView
+from django.views.generic import DetailView,DeleteView,ListView
 from django.contrib.auth.mixins import LoginRequiredMixin,UserPassesTestMixin
 from django.core.paginator import Paginator
 
@@ -17,17 +16,23 @@ def about(request):
     }
     return render(request, 'home/about.html', context)
 
+class PostListView(ListView):
+    model = Post
+    template_name = 'home/blog.html'
+    context_object_name = 'posts'
+    ordering = ['-date_posted']
+    paginate_by = 5
 
-def blog(request):
-    post_data = Post.objects.all().order_by('-date_posted')
-    posts = Paginator(post_data,5)
-    print(posts.get_page(1).object_list)
-    context = {
-        'post_data': posts.get_page(1).object_list,
-        'title': 'Blog',
-        'paginator':posts.get_page(1)        
-    }
-    return render(request, 'home/blog.html', context)
+
+class UserPostListView(ListView):
+    model = Post
+    template_name = 'home/user-post.html'
+    context_object_name = 'posts'
+    paginate_by = 5
+
+    def get_queryset(self):
+        user = get_object_or_404(User,username=self.kwargs.get('username'))
+        return Post.objects.filter(author=user).order_by('-date_posted')
 
 
 @login_required(login_url='login')
@@ -94,8 +99,3 @@ class PostDeleteView(LoginRequiredMixin,UserPassesTestMixin,DeleteView):
             return True
         return False
 
-def user_post(request, username):
-    context = {
-        'title': 'User Post'
-    }
-    return render(request, 'home/user-post.html', context)
